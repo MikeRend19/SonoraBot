@@ -4,3 +4,4 @@ python-dotenv==1.0.0
 ffmpeg
 PyNaCl
 yt-dlp
+aiohttp==3.9.0b0
