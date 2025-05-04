@@ -11,10 +11,10 @@
 ## 🚀 Per Iniziare
 
 Inserisci i file:
--bot.py
--playlist_manager.py
--requirements.txt
--.env (da creare)
+- bot.py
+- playlist_manager.py
+- requirements.txt
+- .env (da creare)
 
 nella stessa cartella ed esegui il bot.
 
