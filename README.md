@@ -54,15 +54,15 @@ LAVALINK_SECURE= /
 
 - 🎶 Ascolta musica da youtube mettendo un url:
 
-`/play https://www.youtube.com/watch?v=GLvohMXgcBo`
+`/play (link canzone)`
 
 - 🔎 Ascolta musica da youtube mettendo direttamente il nome della canzone:
 
-`/play under the bridge red hot chili peppers`
+`/play (nome canzone)`
 
 - 📃 Ascolta le playlist di youtube via url:
 
-`/playlist https://www.youtube.com/watch?v=YlUKcNNmywk&list=PL5RNCwK3GIO13SR_o57bGJCEmqFAwq82c`
+`/play (link playlist)`
 
 - Comando /play
 - Sistema di coda 
