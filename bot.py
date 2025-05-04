@@ -1,94 +1,75 @@
 import os
+import re
 import discord
 from discord.ext import commands
 from discord import app_commands
 import wavelink
+import asyncio
 import json
 from dotenv import load_dotenv
 from playlist_manager import (
     get_user_playlists, 
-    get_user_playlists_full, 
+    get_available_playlists, 
     add_track_to_playlist, 
     load_playlists, 
     save_playlists, 
-    get_available_playlists,
     get_playlist_tracks
 )
-import yt_dlp as youtube_dl 
-import re
-import asyncio
 
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
 
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-LAVALINK_HOST = os.getenv("LAVALINK_HOST")
-LAVALINK_PORT = int(os.getenv("LAVALINK_PORT"))
-LAVALINK_PASSWORD = os.getenv("LAVALINK_PASSWORD")
+DISCORD_TOKEN    = os.getenv("DISCORD_TOKEN")
+LAVALINK_HOST    = os.getenv("LAVALINK_HOST")
+LAVALINK_PORT    = int(os.getenv("LAVALINK_PORT", 2333))
+LAVALINK_PASSWORD= os.getenv("LAVALINK_PASSWORD")
+SECRET_KEY       = "LaTuaChiave"
 
-if DISCORD_TOKEN is None:
+if not DISCORD_TOKEN:
     raise ValueError("Il token del bot non è stato trovato nel file .env")
 
 # Impostazione degli intents per il bot
 intents = discord.Intents.default()
 intents.message_content = True
-intents.voice_states = True
+intents.voice_states  = True
 
-bot = commands.Bot(command_prefix='/', intents=intents)
+bot  = commands.Bot(command_prefix='/', intents=intents)
 tree = bot.tree
 
 # Regex per identificare link YouTube
-YOUTUBE_URL_REGEX = re.compile(r"(https?://)?(www\.)?(youtube\.com|youtu\.be)/")
+YOUTUBE_URL_REGEX = re.compile(r'^(https?://)?(www\.)?(youtube\.com|youtu\.be)/')
 
 ##############################################
 # FUNZIONI PER LA GESTIONE DEI BRANI
 ##############################################
-async def get_track(query: str):
+
+async def fetch_youtube_track(query: str, return_first: bool = False):
     """
-    Recupera una traccia da YouTube dato un link o un testo di ricerca.
+    Cerca una traccia su YouTube dato un URL o testo di ricerca, unificando get_track e youtube_lookup.
     """
-    # Se il link è un URL di YouTube, cerca la traccia specifica
     if YOUTUBE_URL_REGEX.match(query):
         results = await wavelink.YouTubeTrack.search(query)
         if not results:
             return None
-        # Verifica se il video ID è presente
-        video_id = None
-        match = re.search(r"(?:v=|youtu\.be/)([a-zA-Z0-9_-]{11})", query)
+        # Estrai video_id e cerca tra i risultati
+        match = re.search(r'(?:v=|youtu\.be/)([A-Za-z0-9_-]{11})', query)
         if match:
-            video_id = match.group(1)
-        if video_id:
-            for track in results:
-                if video_id in track.uri:
-                    return track
-        return results[0] if results else None
-    else:
-        # Se non è un URL, esegue una ricerca per testo
-        return await wavelink.YouTubeTrack.search(query, return_first=True)
-
-async def youtube_lookup(query: str):
-    """
-    Effettua la ricerca su YouTube e restituisce la traccia.
-    """
-    if YOUTUBE_URL_REGEX.match(query):
-        results = await wavelink.YouTubeTrack.search(query)
-        for track in results:
-            if track.uri == query:
-                return track
-        return results[0] if results else None
-    else:
-        return await wavelink.YouTubeTrack.search(query, return_first=True)
+            vid = match.group(1)
+            for t in results:
+                if vid in t.uri:
+                    return t
+        return results[0]
+    # se non è un URL, cerca per testo
+    return await wavelink.YouTubeTrack.search(query, return_first=return_first)
 
 async def ensure_player_connected(interaction: discord.Interaction) -> wavelink.Player:
-    """
-    Assicura la connessione del player al canale vocale dell'utente.
-    """
-    node = wavelink.NodePool.get_node()
-    player: CustomPlayer = node.get_player(interaction.guild)
+    node   = wavelink.NodePool.get_node()
+    player = node.get_player(interaction.guild)
+    channel= interaction.user.voice.channel
     if not player:
-        player = await interaction.user.voice.channel.connect(cls=CustomPlayer)
+        player = await channel.connect(cls=CustomPlayer)
     elif not player.is_connected():
-        await player.connect(channel=interaction.user.voice.channel)
+        await player.connect(channel=channel)
     return player
 
 ##############################################
@@ -752,47 +733,34 @@ class PlaylistButton(discord.ui.Button):
 ##############################################
 # COMANDO SEGRETO PER VOLUME MASSIMO CON BASS BOOST
 ##############################################
-@tree.command(name="secretvolume", description="Funzione segreta per impostare il volume a 500 con bass boost (richiede una chiave segreta)")
-@app_commands.describe(secret_key="Chiave segreta per abilitare il volume massimo")
+@tree.command(name="secretvolume", description="Volume 500 con bass boost (richiede chiave)")
+@app_commands.describe(secret_key="Chiave segreta")
 async def secret_volume(interaction: discord.Interaction, secret_key: str):
-    CHIAVE_SEGRETA = ""
-    if secret_key != CHIAVE_SEGRETA:
-        return await interaction.response.send_message("❌ Chiave segreta errata. Accesso negato.", ephemeral=True)
+    if secret_key != SECRET_KEY:
+        return await interaction.response.send_message("❌ Chiave segreta errata.", ephemeral=True)
 
     node = wavelink.NodePool.get_node()
     player = node.get_player(interaction.guild)
     if not player:
         return await interaction.response.send_message("Il player non è attivo.", ephemeral=True)
 
+    # Imposta volume a 500
     await player.set_volume(500)
 
-    equalizer_settings = [
-        (0, 0.5),
-        (1, 0.45),
-        (2, 0.40),
-        (3, 0.30),
-        (4, 0.20),
-        (5, 0.00),
-        (6, -0.10),
-        (7, -0.20),
-        (8, -0.30),
-        (9, -0.20),
-        (10, -0.10),
-        (11, 0.00),
-        (12, 0.00),
-        (13, 0.00),
-        (14, 0.00)
+    # Equalizer per bass boost
+    eq_settings = [
+        (0, 0.5), (1, 0.45), (2, 0.40), (3, 0.30), (4, 0.20),
+        (5, 0.00), (6, -0.10), (7, -0.20), (8, -0.30), (9, -0.20),
+        (10, -0.10), (11, 0.00), (12, 0.00), (13, 0.00), (14, 0.00)
     ]
-
     try:
-        await player.set_equalizer(equalizer_settings)
-        equalizer_message = "con bass boost potenziato"
-    except Exception as e:
-        print("Errore nell'applicazione dell'equalizer:", e)
-        equalizer_message = "ma il bass boost non è stato applicato"
+        await player.set_equalizer(eq_settings)
+        msg_eq = "con bass boost potenziato"
+    except Exception:
+        msg_eq = "ma il bass boost non è stato applicato"
 
-    return await interaction.response.send_message(
-        f"🔊 Volume impostato a 500 {equalizer_message}! Funzione segreta attivata.",
+    await interaction.response.send_message(
+        f"🔊 Volume impostato a 500 {msg_eq}! Funzione segreta attivata.",
         ephemeral=True
     )
 
