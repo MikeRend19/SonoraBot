@@ -16,11 +16,15 @@ Inserisci i file:
 - requirements.txt
 - .env (da creare)
 
-nella stessa cartella ed esegui il bot con il comando: `python bot.py`
+nella stessa cartella ed esegui il bot con i comandi: 
+
+- `cd C:\Users\TuoNome\Desktop\CartellaBot`
+
+- `python bot.py`
 
 oppure puoi fare :
 
-- `git clone https://github.com/MikeRend19/Music-Bot-for-Discord`
+- `git clone https://github.com/MikeRend19/Music-Bot-for-Discord` (Se hai git installato)
 
 - `pip install -r requirements.txt`
 
