@@ -44,7 +44,7 @@ LAVALINK_SECURE= /
 
 `/play under the bridge red hot chili peppers`
 
-- 📃 Ascolta le playlist di youtube via url
+- 📃 Ascolta le playlist di youtube via url:
 
 `/playlist https://www.youtube.com/watch?v=YlUKcNNmywk&list=PL5RNCwK3GIO13SR_o57bGJCEmqFAwq82c`
 
