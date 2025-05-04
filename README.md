@@ -78,5 +78,5 @@ Il bot ha inoltre un comando:
 - `secretvolume`
 
 Che aumenta il volume della musica al massimo e boosta i bassi.
-Si puo cambiare la password per eseguire il comando nello script alla riga 27.
+Si puo cambiare la password per eseguire il comando nello script alla riga 26.
 
