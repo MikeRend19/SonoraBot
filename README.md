@@ -16,7 +16,8 @@ Inserisci i file:
 - requirements.txt
 - .env (da creare)
 
-nella stessa cartella ed esegui il bot.
+nella stessa cartella ed esegui il bot con il comando:
+`python bot.py`
 
 ## ⚙️ Configurazione
 
