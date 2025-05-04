@@ -20,6 +20,8 @@ nella stessa cartella ed esegui il bot con i comandi:
 
 - `cd C:\Users\TuoNome\Desktop\CartellaBot`
 
+- `pip install -r requirements.txt`
+
 - `python bot.py`
 
 oppure puoi fare :
