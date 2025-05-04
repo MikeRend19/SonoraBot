@@ -1,6 +1,6 @@
-# 🤖 Music Bot (creato da Mike_Rend)
+# 🤖 Sonora (creato da Mike_Rend)
 
-> Music Bot é un semplice bot scritto in python che utilizza un nodo lavalink per riprodurre della musica.
+> Sonora Bot é un semplice bot scritto in python che utilizza un nodo lavalink per riprodurre della musica.
 
 ## Requirements
 
@@ -27,6 +27,8 @@ oppure puoi fare :
 - `git clone https://github.com/MikeRend19/Music-Bot-for-Discord` (Se hai git installato)
 
 - `pip install -r requirements.txt`
+
+- `cd Music-Bot-for-Discord`
 
 - `python bot.py`
 
