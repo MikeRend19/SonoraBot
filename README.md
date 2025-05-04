@@ -28,7 +28,7 @@ oppure puoi fare :
 
 - `pip install -r requirements.txt`
 
-- `cd Music-Bot-for-Discord`
+- `cd SonoraBot`
 
 - `python bot.py`
 
