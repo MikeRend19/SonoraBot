@@ -24,11 +24,11 @@ nella stessa cartella ed esegui il bot con i comandi:
 
 oppure puoi fare :
 
-- `git clone https://github.com/MikeRend19/Music-Bot-for-Discord` (Se hai git installato)
-
-- `pip install -r requirements.txt`
+- `git clone https://github.com/MikeRend19/SonoraBot` (Se hai git installato)
 
 - `cd SonoraBot`
+
+- `pip install -r requirements.txt`
 
 - `python bot.py`
 
