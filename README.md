@@ -24,8 +24,8 @@ Crea un file .env e inserisci le informazioni del tuo bot seguendo il modello al
 
 ⚠️ **Note: Non rendere mai pubbliche le info che inserirai qui sotto** ⚠️
 
-```json
-DISCORD_TOKEN=ÏlTuoToken"
+```
+DISCORD_TOKEN="IlTuoToken"
 
 # Lavalink Node Configuration
 LAVALINK_HOST= /
