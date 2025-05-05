@@ -70,6 +70,7 @@ LAVALINK_SECURE= /
 - Controllo del volume
 - Pausa/Riprendi
 - Skip
+- Funzione creazione playlist locali (con eventuale comando di gestione)
 
 ## ⚠️ Funzioni Extra
 
