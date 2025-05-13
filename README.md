@@ -7,15 +7,15 @@
 
 ## 📋 Sommario
 
-- [Caratteristiche](#-caratteristiche)  
-- [Requisiti](#-requisiti)  
-- [Installazione](#-installazione)  
-- [Configurazione](#-configurazione)  
-- [Comandi disponibili](#-comandi-disponibili)  
-- [Funzioni Extra](#-funzioni-extra)  
-- [Personalizzazione](#-personalizzazione)  
-- [Contribuire](#-contribuire)  
-- [Licenza](#-licenza)  
+- [Caratteristiche](#caratteristiche)
+- [Requisiti](#requisiti)
+- [Installazione](#installazione)
+- [Configurazione](#configurazione)
+- [Comandi disponibili](#comandi-disponibili)
+- [Funzioni Extra](#funzioni-extra)
+- [Personalizzazione](#personalizzazione)
+- [Contribuire](#contribuire)
+- [Licenza](#licenza)
 
 ## 🚀 Caratteristiche
 
