@@ -74,7 +74,6 @@ async def on_ready():
     print(f'{bot.user} pronto!')
     await tree.sync()
 
-    # Imposta la presenza del bot (sta ascoltando 🎶)
     activity = discord.Activity(
         type=discord.ActivityType.listening,
         name="🎶 la musica degli utenti"
@@ -142,7 +141,6 @@ class PlayButton(discord.ui.Button):
 
         player = await ensure_player_connected(interaction)
 
-        # Carica le tracce
         tracks_to_add = []
         for song in self.playlist.get("tracks", []):
             track = await wavelink.YouTubeTrack.search(song["url"], return_first=True)
@@ -152,19 +150,16 @@ class PlayButton(discord.ui.Button):
         if not tracks_to_add:
             return await interaction.response.send_message("❌ Playlist vuota!", ephemeral=True)
 
-        # Se non sta suonando, avvia subito la prima traccia
         if (not player.is_playing() or player.stopped) and not player.control_message:
             first = tracks_to_add[0]
             first.requester = interaction.user
             await player.play(first)
             player.current = first
 
-            # imposta requester per la coda
             for t in tracks_to_add[1:]:
                 t.requester = interaction.user
             player.queue.extend(tracks_to_add[1:])
 
-            # embed
             secs = int(first.length)
             m, s = divmod(secs, 60)
             vol = player.volume
@@ -185,7 +180,6 @@ class PlayButton(discord.ui.Button):
             player.control_message = await interaction.original_response()
 
         else:
-            # se sta già suonando, accoda tutte
             for t in tracks_to_add:
                 t.requester = interaction.user
                 player.queue.append(t)
@@ -383,7 +377,6 @@ async def play(interaction: discord.Interaction, query: str):
 
     player = await ensure_player_connected(interaction)
 
-    # Se è una playlist YouTube
     if "list=" in query:
         tracks = await get_playlist_tracks(query)
         if not tracks:
@@ -569,7 +562,6 @@ class MusicControls(discord.ui.View):
             status = "disattivato"
 
         await interaction.response.send_message(f"🔁 Loop {status}.", ephemeral=True)
-        # aggiorna la view così mantiene stato del bottone
         await interaction.message.edit(view=self)
 
     @discord.ui.button(label="⏹️ Stop", style=discord.ButtonStyle.danger, custom_id="stop_track")
@@ -633,9 +625,6 @@ class MusicControls(discord.ui.View):
         except Exception as e:
             await interaction.response.send_message(f"Errore nel saltare il brano: {e}", ephemeral=True)
 
-    # -----------------------------------------------------------------------------
-    # Pulsanti 🔊 Volume + e 🔉 Volume - (in MusicControls)
-    # -----------------------------------------------------------------------------
     @discord.ui.button(label="🔊 Volume +", style=discord.ButtonStyle.grey, custom_id="volume_up")
     async def volume_up(self, interaction: discord.Interaction, button: discord.ui.Button):
         node = wavelink.NodePool.get_node()
@@ -646,7 +635,6 @@ class MusicControls(discord.ui.View):
         new_vol = min(100, player.volume + 10)
         await player.set_volume(new_vol)
 
-        # ricostruisci embed con requester già presente
         track = player.current
         secs = int(track.length)
         m, s = divmod(secs, 60)
@@ -676,7 +664,6 @@ class MusicControls(discord.ui.View):
         new_vol = max(1, player.volume - 10)
         await player.set_volume(new_vol)
 
-        # ricostruisci embed
         track = player.current
         secs = int(track.length)
         m, s = divmod(secs, 60)
@@ -729,7 +716,6 @@ class VolumeModal(discord.ui.Modal, title="Imposta Volume Manuale"):
 
         await player.set_volume(vol)
 
-        # ricostruisci embed con requester già definito
         track = player.current
         secs = int(track.length)
         m, s = divmod(secs, 60)
@@ -875,12 +861,10 @@ async def on_wavelink_track_end(player: wavelink.Player, track: wavelink.Track, 
     if not isinstance(player, CustomPlayer):
         return
 
-    # Skip manual
     if getattr(player, "skip_manual", False):
         player.skip_manual = False
         return
 
-    # LOOP ATTIVO
     if player.loop:
         if not getattr(player, "cached_thumbnail", None):
             player.cached_thumbnail = get_thumbnail(track)
@@ -906,10 +890,8 @@ async def on_wavelink_track_end(player: wavelink.Player, track: wavelink.Track, 
             )
         return
 
-    # Disabilita cache thumbnail
     player.cached_thumbnail = None
 
-    # Avanzamento alla traccia successiva in coda
     if player.queue:
         next_track = player.queue.pop(0)
         try:
@@ -941,7 +923,6 @@ async def on_wavelink_track_end(player: wavelink.Player, track: wavelink.Track, 
         except Exception as e:
             print(f"Errore nel riprodurre il brano successivo: {e}")
     else:
-        # Coda vuota: elimina messaggio di controllo e disconnetti
         await asyncio.sleep(5)
         if player.control_message:
             try:
