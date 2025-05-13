@@ -913,13 +913,13 @@ async def on_wavelink_track_end(player: wavelink.Player, track: wavelink.Track, 
     if player.queue:
         next_track = player.queue.pop(0)
         try:
+            current_volume = player.volume
             await player.play(next_track)
             player.current = next_track
+            await player.set_volume(current_volume)
 
-            # Costruisci embed simile a /play
             duration_secs = int(next_track.length)
             m, s = divmod(duration_secs, 60)
-            vol = player.volume
             embed = discord.Embed(
                 title="🎶 Ora in riproduzione",
                 description=f"[{next_track.title}]({next_track.uri})",
@@ -927,7 +927,7 @@ async def on_wavelink_track_end(player: wavelink.Player, track: wavelink.Track, 
             )
             embed.set_thumbnail(url=next_track.thumbnail or "https://via.placeholder.com/150")
             embed.add_field(name="⏱ Durata", value=f"{m}:{s:02d}", inline=True)
-            embed.add_field(name="🔊 Volume", value=f"{vol}%", inline=True)
+            embed.add_field(name="🔊 Volume", value=f"{current_volume}%", inline=True)
             embed.set_footer(
                 text=f"Richiesto da {player.current.requester}",
                 icon_url=getattr(player.current.requester, 'avatar_url', None)
