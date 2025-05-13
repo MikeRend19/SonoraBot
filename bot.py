@@ -43,52 +43,27 @@ YOUTUBE_URL_REGEX = re.compile(r"(https?://)?(www\.)?(youtube\.com|youtu\.be)/")
 ##############################################
 # FUNZIONI PER LA GESTIONE DEI BRANI
 ##############################################
-async def get_track(query: str):
-    """
-    Recupera una traccia da YouTube dato un link o un testo di ricerca.
-    """
-    # Se il link è un URL di YouTube, cerca la traccia specifica
-    if YOUTUBE_URL_REGEX.match(query):
-        results = await wavelink.YouTubeTrack.search(query)
-        if not results:
-            return None
-        # Verifica se il video ID è presente
-        video_id = None
-        match = re.search(r"(?:v=|youtu\.be/)([a-zA-Z0-9_-]{11})", query)
-        if match:
-            video_id = match.group(1)
-        if video_id:
-            for track in results:
-                if video_id in track.uri:
-                    return track
+async def get_track(query: str) -> wavelink.YouTubeTrack | None:
+ 
+    match = YOUTUBE_URL_REGEX.match(query)
+    if match:
+        video_id = match.group(1)
+        results = await wavelink.YouTubeTrack.search(f"https://www.youtube.com/watch?v={video_id}")
         return results[0] if results else None
-    else:
-        # Se non è un URL, esegue una ricerca per testo
-        return await wavelink.YouTubeTrack.search(query, return_first=True)
 
-async def youtube_lookup(query: str):
-    """
-    Effettua la ricerca su YouTube e restituisce la traccia.
-    """
-    if YOUTUBE_URL_REGEX.match(query):
-        results = await wavelink.YouTubeTrack.search(query)
-        for track in results:
-            if track.uri == query:
-                return track
-        return results[0] if results else None
-    else:
-        return await wavelink.YouTubeTrack.search(query, return_first=True)
+    return await wavelink.YouTubeTrack.search(query, return_first=True)
+
 
 async def ensure_player_connected(interaction: discord.Interaction) -> wavelink.Player:
-    """
-    Assicura la connessione del player al canale vocale dell'utente.
-    """
+
     node = wavelink.NodePool.get_node()
-    player: CustomPlayer = node.get_player(interaction.guild)
+    player: wavelink.Player = node.get_player(interaction.guild)
+
     if not player:
         player = await interaction.user.voice.channel.connect(cls=CustomPlayer)
     elif not player.is_connected():
         await player.connect(channel=interaction.user.voice.channel)
+
     return player
 
 ##############################################
@@ -98,6 +73,13 @@ async def ensure_player_connected(interaction: discord.Interaction) -> wavelink.
 async def on_ready():
     print(f'{bot.user} pronto!')
     await tree.sync()
+
+    # Imposta la presenza del bot (sta ascoltando 🎶)
+    activity = discord.Activity(
+        type=discord.ActivityType.listening,
+        name="🎶 la musica degli utenti"
+    )
+    await bot.change_presence(status=discord.Status.online, activity=activity)
 
     try:
         wavelink.NodePool.get_node()
