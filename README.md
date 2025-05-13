@@ -7,17 +7,17 @@
 
 ## 📋 Sommario
 
-- [Caratteristiche](#caratteristiche)
-- [Requisiti](#requisiti)
-- [Installazione](#installazione)
-- [Configurazione](#configurazione)
-- [Comandi disponibili](#comandi-disponibili)
-- [Funzioni Extra](#funzioni-extra)
-- [Personalizzazione](#personalizzazione)
-- [Contribuire](#contribuire)
-- [Licenza](#licenza)
+- [Caratteristiche](#caratteristiche)  
+- [Requisiti](#requisiti)  
+- [Installazione](#installazione)  
+- [Configurazione](#configurazione)  
+- [Comandi disponibili](#comandi-disponibili)  
+- [Funzioni Extra](#funzioni-extra)  
+- [Personalizzazione](#personalizzazione)  
+- [Contribuire](#contribuire)  
+- [Licenza](#licenza) 
 
-## 🚀 Caratteristiche
+## Caratteristiche
 
 - Riproduzione di singoli brani e playlist YouTube  
 - Controllo della coda e sistema di loop  
@@ -26,13 +26,13 @@
 - Creazione e gestione di playlist locali (pubbliche e private)  
 - Comando segreto `secretvolume` per boost dei bassi  
 
-## 🛠️ Requisiti
+## Requisiti
 
 1. Python 3.10 o successivo  
 2. Un bot Discord (token)  
 3. Un nodo Lavalink in esecuzione  
 
-## 📥 Installazione
+## Installazione
 
 Clona il repository o scarica i file:
 
@@ -53,7 +53,7 @@ Avvia il bot:
 python bot.py
 ```
 
-⚙️ Configurazione
+## Configurazione
 
 Crea un file .env nella cartella principale con il seguente formato:
 
@@ -67,25 +67,25 @@ LAVALINK_SECURE=false
 
 ⚠️ Non condividere il file .env pubblicamente!
 
-🎹 Comandi disponibili
+## Comandi disponibili
 Comando	Descrizione
 - `/play <link> | <nome>`:	Riproduci un brano o playlist da YouTube
 - `/playplaylist`:	Seleziona e avvia una playlist locale
 - `/gestisciplaylist`:	Gestisci le tue playlist o quelle pubbliche
 - Controlli interattivi:	Pause, Riprendi, Skip, Stop, Loop, Volume +/-, ecc.
 
-✨ Funzioni Extra
+# Funzioni Extra
 
    - `/secretvolume`: aumenta il volume al massimo e potenzia i bassi.
       -  La password per eseguire secretvolume si trova alla riga 818 del file bot.py.
 
-🔧 Personalizzazione
+## Personalizzazione
 
   - Puoi modificare i comandi, i prefissi o gli stili delle embed direttamente in `bot.py`.
 
   -  Per cambiare la password del comando `secretvolume`, cerca la definizione del comando e modifica la stringa al rigo 818.
 
-🤝 Contribuire
+## Contribuire
 
 PR e issue sono benvenuti! Segui questi passaggi:
 
@@ -105,7 +105,7 @@ PR e issue sono benvenuti! Segui questi passaggi:
 
  5. Apri una Pull Request
 
-📄 Licenza
+## Licenza
 
 Il progetto è rilasciato sotto licenza MIT. Questo significa che puoi utilizzare, modificare e distribuire liberamente il software, anche in progetti commerciali, a condizione di:
 
