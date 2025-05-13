@@ -651,7 +651,7 @@ class MusicControls(discord.ui.View):
         secs = int(track.length)
         m, s = divmod(secs, 60)
         embed = discord.Embed(
-            title="🎶 Ora in riproduzione" + (" (Loop)" if self.loop_active else ""),
+            title="🎶 Ora in riproduzione",
             description=f"[{track.title}]({track.uri})",
             color=discord.Color.green()
         )
@@ -681,7 +681,7 @@ class MusicControls(discord.ui.View):
         secs = int(track.length)
         m, s = divmod(secs, 60)
         embed = discord.Embed(
-            title="🎶 Ora in riproduzione" + (" (Loop)" if self.loop_active else ""),
+            title="🎶 Ora in riproduzione",
             description=f"[{track.title}]({track.uri})",
             color=discord.Color.green()
         )
@@ -892,7 +892,7 @@ async def on_wavelink_track_end(player: wavelink.Player, track: wavelink.Track, 
             vol = player.volume
 
             embed = discord.Embed(
-                title="🎶 Ora in riproduzione (Loop)",
+                title="🎶 Ora in riproduzione",
                 description=f"[{track.title}]({track.uri})",
                 color=discord.Color.green()
             )
