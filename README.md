@@ -1,83 +1,140 @@
-# 🤖 Sonora (creato da Mike_Rend)
+# 🤖 Sonora
 
-> Sonora Bot é un semplice bot scritto in python che utilizza un nodo lavalink per riprodurre della musica.
+> Sonora Bot è un bot Discord per riprodurre musica da YouTube utilizzando un nodo Lavalink.
 
-## Requirements
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)  
+[![Discord.py](https://img.shields.io/badge/discord.py-%7E2.0-green)](https://github.com/Rapptz/discord.py)
 
-1. Discord Bot Token **[Guida](https://www.aranzulla.it/come-creare-un-bot-su-discord-1670742.html)**  
-2. Python 3.10 o versioni piu nuove (potrebbe funzionare con versioni vecchie ma con qualche problema)
-3. Un nodo lavalink
+## 📋 Sommario
 
-## 🚀 Per Iniziare
+- [Caratteristiche](#-caratteristiche)  
+- [Requisiti](#-requisiti)  
+- [Installazione](#-installazione)  
+- [Configurazione](#-configurazione)  
+- [Comandi disponibili](#-comandi-disponibili)  
+- [Funzioni Extra](#-funzioni-extra)  
+- [Personalizzazione](#-personalizzazione)  
+- [Contribuire](#-contribuire)  
+- [Licenza](#-licenza)  
 
-Inserisci i file:
-- bot.py
-- playlist_manager.py
-- requirements.txt
-- .env (da creare)
+## 🚀 Caratteristiche
 
-nella stessa cartella ed esegui il bot con i comandi: 
+- Riproduzione di singoli brani e playlist YouTube  
+- Controllo della coda e sistema di loop  
+- Pause/Riprendi, Skip e Stop  
+- Controllo del volume (incluso volume manuale)  
+- Creazione e gestione di playlist locali (pubbliche e private)  
+- Comando segreto `secretvolume` per boost dei bassi  
 
-- `cd C:\Users\TuoNome\Desktop\CartellaBot`
+## 🛠️ Requisiti
 
-- `pip install -r requirements.txt`
+1. Python 3.10 o successivo  
+2. Un bot Discord (token)  
+3. Un nodo Lavalink in esecuzione  
 
-- `python bot.py`
+## 📥 Installazione
 
-oppure puoi fare :
+Clona il repository o scarica i file:
 
-- `git clone https://github.com/MikeRend19/SonoraBot` (Se hai git installato)
+```bash
+git clone https://github.com/MikeRend19/SonoraBot.git
+cd SonoraBot
+```
 
-- `cd SonoraBot`
+Installa le dipendenze:
 
-- `pip install -r requirements.txt`
+```bash
+pip install -r requirements.txt
+```
 
-- `python bot.py`
+Avvia il bot:
 
-## ⚙️ Configurazione
+```
+python bot.py
+```
 
-Crea un file .env e inserisci le informazioni del tuo bot seguendo il modello allegato:
+⚙️ Configurazione
 
-⚠️ **Note: Non rendere mai pubbliche le info che inserirai qui sotto** ⚠️
+Crea un file .env nella cartella principale con il seguente formato:
 
 ```
 DISCORD_TOKEN="IlTuoToken"
-
-# Lavalink Node Configuration
-LAVALINK_HOST= /
-LAVALINK_PORT= /
-LAVALINK_PASSWORD= /
-LAVALINK_SECURE= /
+LAVALINK_HOST=localhost
+LAVALINK_PORT=2333
+LAVALINK_PASSWORD=IlTuoPassword
+LAVALINK_SECURE=false
 ```
 
-## 📝 Funzioni e Comandi 
+⚠️ Non condividere il file .env pubblicamente!
 
-- 🎶 Ascolta musica da youtube mettendo un url:
+🎹 Comandi disponibili
+Comando	Descrizione
+- `/play <link> | <nome>`:	Riproduci un brano o playlist da YouTube
+- `/playplaylist`:	Seleziona e avvia una playlist locale
+- `/gestisciplaylist`:	Gestisci le tue playlist o quelle pubbliche
+- Controlli interattivi:	Pause, Riprendi, Skip, Stop, Loop, Volume +/-, ecc.
 
-`/play (link canzone)`
+✨ Funzioni Extra
 
-- 🔎 Ascolta musica da youtube mettendo direttamente il nome della canzone:
+   - `/secretvolume`: aumenta il volume al massimo e potenzia i bassi.
+      -  La password per eseguire secretvolume si trova alla riga 818 del file bot.py.
 
-`/play (nome canzone)`
+🔧 Personalizzazione
 
-- 📃 Ascolta le playlist di youtube via url:
+  - Puoi modificare i comandi, i prefissi o gli stili delle embed direttamente in `bot.py`.
 
-`/play (link playlist)`
+  -  Per cambiare la password del comando `secretvolume`, cerca la definizione del comando e modifica la stringa al rigo 818.
 
-- Comando /play
-- Sistema di coda 
-- Sistema di loop
-- Controllo del volume
-- Pausa/Riprendi
-- Skip
-- Funzione creazione playlist locali (con eventuale comando di gestione)
+🤝 Contribuire
 
-## ⚠️ Funzioni Extra
+PR e issue sono benvenuti! Segui questi passaggi:
 
-Il bot ha inoltre un comando:
+ 1. Fork del repository
 
-- `secretvolume`
+ 2. Crea un branch feature:
 
-Che aumenta il volume della musica al massimo e boosta i bassi.
-Si puo cambiare la password per eseguire il comando nello script alla riga 26.
+```git checkout -b feature/AmazingFeature```
 
+ 3. Commit delle modifiche:
+
+```git commit -m "Add some AmazingFeature"```
+
+ 4. Push al branch:
+
+```git push origin feature/AmazingFeature```
+
+ 5. Apri una Pull Request
+
+📄 Licenza
+
+Il progetto è rilasciato sotto licenza MIT. Questo significa che puoi utilizzare, modificare e distribuire liberamente il software, anche in progetti commerciali, a condizione di:
+
+  1. Includere copia della licenza MIT originale in tutte le copie o parti sostanziali del software.
+
+  2. Non fornire alcuna garanzia; il software viene fornito “COSÌ COM’È”, senza alcuna dichiarazione esplicita o implicita.
+
+Per il testo completo della licenza, consulta il file LICENSE incluso nel repository.
+
+```
+MIT License
+
+Copyright (c) [Annosuo] 2025
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
