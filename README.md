@@ -17,7 +17,7 @@
 - [🤝 Contribuire](#contribuire)
 - [📄 Licenza](#licenza)
 
-## <h2 id="caratteristiche">🚀 Caratteristiche</h2>
+<h2 id="caratteristiche">🚀 Caratteristiche</h2>
 
 - Riproduzione di singoli brani e playlist YouTube  
 - Controllo della coda e sistema di loop  
@@ -26,13 +26,13 @@
 - Creazione e gestione di playlist locali (pubbliche e private)  
 - Comando segreto `secretvolume` per boost dei bassi  
 
-## <h2 id="requisiti">🛠️ Requisiti</h2>
+<h2 id="requisiti">🛠️ Requisiti</h2>
 
 1. Python 3.10 o successivo  
 2. Un bot Discord (token)  
 3. Un nodo Lavalink in esecuzione  
 
-## <h2 id="installazione">📥 Installazione</h2>
+<h2 id="installazione">📥 Installazione</h2>
 
 Clona il repository o scarica i file:
 
@@ -53,7 +53,7 @@ Avvia il bot:
 python bot.py
 ```
 
-## <h2 id="configurazione">⚙️ Configurazione</h2>
+<h2 id="configurazione">⚙️ Configurazione</h2>
 
 Crea un file .env nella cartella principale con il seguente formato:
 
@@ -67,7 +67,7 @@ LAVALINK_SECURE=false
 
 ⚠️ Non condividere il file .env pubblicamente!
 
-## <h2 id="comandi-disponibili">🎹 Comandi disponibili</h2>
+<h2 id="comandi-disponibili">🎹 Comandi disponibili</h2>
 
 Comando	Descrizione
 - `/play <link> | <nome>`:	Riproduci un brano o playlist da YouTube
@@ -75,18 +75,18 @@ Comando	Descrizione
 - `/gestisciplaylist`:	Gestisci le tue playlist o quelle pubbliche
 - Controlli interattivi:	Pause, Riprendi, Skip, Stop, Loop, Volume +/-, ecc.
 
-# <h2 id="funzioni-extra">✨ Funzioni Extra</h2>
+<h2 id="funzioni-extra">✨ Funzioni Extra</h2>
 
    - `/secretvolume`: aumenta il volume al massimo e potenzia i bassi.
       -  La password per eseguire secretvolume si trova alla riga 818 del file bot.py.
 
-## <h2 id="personalizzazione">🔧 Personalizzazione</h2>
+<h2 id="personalizzazione">🔧 Personalizzazione</h2>
 
   - Puoi modificare i comandi, i prefissi o gli stili delle embed direttamente in `bot.py`.
 
   -  Per cambiare la password del comando `secretvolume`, cerca la definizione del comando e modifica la stringa al rigo 818.
 
-## <h2 id="contribuire">🤝 Contribuire</h2>
+<h2 id="contribuire">🤝 Contribuire</h2>
 
 PR e issue sono benvenuti! Segui questi passaggi:
 
@@ -106,7 +106,7 @@ PR e issue sono benvenuti! Segui questi passaggi:
 
  5. Apri una Pull Request
 
-## <h2 id="licenza">📄 Licenza</h2>
+<h2 id="licenza">📄 Licenza</h2>
 
 Il progetto è rilasciato sotto licenza MIT. Questo significa che puoi utilizzare, modificare e distribuire liberamente il software, anche in progetti commerciali, a condizione di:
 
