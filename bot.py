@@ -147,6 +147,7 @@ class PlaylistSelectView(discord.ui.View):
         for pl in playlists:
             self.add_item(PlayButton(pl, user_id))
 
+
 class PlayButton(discord.ui.Button):
     def __init__(self, playlist, user_id):
         super().__init__(label=playlist["name"], style=discord.ButtonStyle.green)
@@ -154,72 +155,58 @@ class PlayButton(discord.ui.Button):
         self.user_id = user_id
 
     async def callback(self, interaction: discord.Interaction):
-        vc_state = interaction.user.voice
-        if not vc_state or not vc_state.channel:
-            return await interaction.response.send_message(
-                "🔇 Devi essere in un canale vocale!",
-                ephemeral=True
-            )
+        if not interaction.user.voice or not interaction.user.voice.channel:
+            return await interaction.response.send_message("🔇 Devi essere in un canale vocale!", ephemeral=True)
 
         player = await ensure_player_connected(interaction)
 
-        # Carica le tracce della playlist
+        # Carica le tracce
         tracks_to_add = []
         for song in self.playlist.get("tracks", []):
-            track = await wavelink.YouTubeTrack.search(
-                song["url"],
-                return_first=True
-            )
+            track = await wavelink.YouTubeTrack.search(song["url"], return_first=True)
             if track:
                 tracks_to_add.append(track)
 
         if not tracks_to_add:
-            return await interaction.response.send_message(
-                "❌ Playlist vuota!",
-                ephemeral=True
-            )
-
-        # Connetti il player se non è già connesso
-        if not player.is_connected():
-            try:
-                player = await interaction.user.voice.channel.connect(
-                    cls=CustomPlayer
-                )
-            except Exception as e:
-                return await interaction.response.send_message(
-                    f"❌ Errore nella connessione al canale vocale: {e}",
-                    ephemeral=True
-                )
+            return await interaction.response.send_message("❌ Playlist vuota!", ephemeral=True)
 
         # Se non sta suonando, avvia subito la prima traccia
         if (not player.is_playing() or player.stopped) and not player.control_message:
             first = tracks_to_add[0]
+            first.requester = interaction.user
             await player.play(first)
             player.current = first
+
+            # imposta requester per la coda
+            for t in tracks_to_add[1:]:
+                t.requester = interaction.user
             player.queue.extend(tracks_to_add[1:])
 
+            # embed
             secs = int(first.length)
             m, s = divmod(secs, 60)
             vol = player.volume
 
             embed = discord.Embed(
                 title=f"▶️ Playlist: {self.playlist['name']}",
-                description=f"Ora in riproduzione: [{first.title}]({first.uri})",
+                description=f"[{first.title}]({first.uri})",
                 color=discord.Color.green()
             )
             embed.set_thumbnail(url=first.thumbnail or "https://via.placeholder.com/150")
             embed.add_field(name="⏱ Durata", value=f"{m}:{s:02d}", inline=True)
             embed.add_field(name="🔊 Volume", value=f"{vol}%", inline=True)
             embed.add_field(name="🎧 Brani in coda", value=str(len(player.queue)), inline=True)
-            embed.set_footer(text=f"Richiesto da {interaction.user}", icon_url=interaction.user.avatar.url if interaction.user.avatar else None)
+            embed.set_footer(text=f"Richiesto da {first.requester}",
+                             icon_url=interaction.user.avatar.url if interaction.user.avatar else None)
 
-            view = MusicControls(first, interaction.guild, loop_active=player.loop)
-            await interaction.response.send_message(embed=embed, view=view)
-
+            msg = await interaction.response.send_message(embed=embed, view=MusicControls(first, interaction.guild, loop_active=player.loop))
             player.control_message = await interaction.original_response()
 
         else:
-            player.queue.extend(tracks_to_add)
+            # se sta già suonando, accoda tutte
+            for t in tracks_to_add:
+                t.requester = interaction.user
+                player.queue.append(t)
             await interaction.response.send_message(
                 f"✅ Playlist **{self.playlist['name']}** aggiunta in coda con {len(tracks_to_add)} brani.",
                 ephemeral=True
@@ -408,18 +395,25 @@ class RenamePlaylistModal(discord.ui.Modal, title="✏️ Rinomina Playlist"):
 @app_commands.describe(query="Link o titolo")
 async def play(interaction: discord.Interaction, query: str):
     await interaction.response.defer()
+
     if not interaction.user.voice or not interaction.user.voice.channel:
         return await interaction.followup.send("❌ Devi essere in un canale vocale!", ephemeral=True)
 
     player = await ensure_player_connected(interaction)
 
+    # Se è una playlist YouTube
     if "list=" in query:
         tracks = await get_playlist_tracks(query)
         if not tracks:
             return await interaction.followup.send("❌ Nessuna playlist trovata.", ephemeral=True)
+
         first = tracks.pop(0)
+        first.requester = interaction.user
         await player.play(first)
         player.current = first
+
+        for t in tracks:
+            t.requester = interaction.user
         player.queue.extend(tracks)
 
         secs = int(first.length)
@@ -435,7 +429,8 @@ async def play(interaction: discord.Interaction, query: str):
         embed.add_field(name="⏱ Durata", value=f"{m}:{s:02d}", inline=True)
         embed.add_field(name="🔊 Volume", value=f"{vol}%", inline=True)
         embed.add_field(name="📑 Brani in coda", value=str(len(player.queue)), inline=True)
-        embed.set_footer(text=f"Richiesto da {interaction.user}", icon_url=interaction.user.avatar.url if interaction.user.avatar else None)
+        embed.set_footer(text=f"Richiesto da {first.requester}",
+                         icon_url=interaction.user.avatar.url if interaction.user.avatar else None)
 
         msg = await interaction.followup.send(embed=embed, view=MusicControls(first, interaction.guild, loop_active=player.loop))
         player.control_message = msg
@@ -444,6 +439,9 @@ async def play(interaction: discord.Interaction, query: str):
         track = await get_track(query)
         if not track:
             return await interaction.followup.send("❌ Nessun risultato trovato!", ephemeral=True)
+
+        track.requester = interaction.user
+
         if (not player.is_playing() or player.stopped) and not player.control_message:
             await player.play(track)
             player.current = track
@@ -460,7 +458,8 @@ async def play(interaction: discord.Interaction, query: str):
             embed.set_thumbnail(url=track.thumbnail or "https://via.placeholder.com/150")
             embed.add_field(name="⏱ Durata", value=f"{m}:{s:02d}", inline=True)
             embed.add_field(name="🔊 Volume", value=f"{vol}%", inline=True)
-            embed.set_footer(text=f"Richiesto da {interaction.user}", icon_url=interaction.user.avatar.url if interaction.user.avatar else None)
+            embed.set_footer(text=f"Richiesto da {track.requester}",
+                             icon_url=interaction.user.avatar.url if interaction.user.avatar else None)
 
             msg = await interaction.followup.send(embed=embed, view=MusicControls(track, interaction.guild, loop_active=player.loop))
             player.control_message = msg
@@ -575,9 +574,10 @@ class MusicControls(discord.ui.View):
         player = node.get_player(interaction.guild)
         if not player:
             return await interaction.response.send_message("Il player non è attivo.", ephemeral=True)
+
         player.loop = not player.loop
         self.loop_active = player.loop
-        if self.loop_active:
+        if player.loop:
             button.label = "🔁 Loop Attivato"
             button.style = discord.ButtonStyle.primary
             status = "attivato"
@@ -585,7 +585,9 @@ class MusicControls(discord.ui.View):
             button.label = "🔁 Loop"
             button.style = discord.ButtonStyle.secondary
             status = "disattivato"
+
         await interaction.response.send_message(f"🔁 Loop {status}.", ephemeral=True)
+        # aggiorna la view così mantiene stato del bottone
         await interaction.message.edit(view=self)
 
     @discord.ui.button(label="⏹️ Stop", style=discord.ButtonStyle.danger, custom_id="stop_track")
@@ -649,6 +651,9 @@ class MusicControls(discord.ui.View):
         except Exception as e:
             await interaction.response.send_message(f"Errore nel saltare il brano: {e}", ephemeral=True)
 
+    # -----------------------------------------------------------------------------
+    # Pulsanti 🔊 Volume + e 🔉 Volume - (in MusicControls)
+    # -----------------------------------------------------------------------------
     @discord.ui.button(label="🔊 Volume +", style=discord.ButtonStyle.grey, custom_id="volume_up")
     async def volume_up(self, interaction: discord.Interaction, button: discord.ui.Button):
         node = wavelink.NodePool.get_node()
@@ -656,33 +661,27 @@ class MusicControls(discord.ui.View):
         if not player:
             return await interaction.response.send_message("Il player non è attivo.", ephemeral=True)
 
-        # Aumento volume
-        new_volume = min(100, player.volume + 10)
-        await player.set_volume(new_volume)
+        new_vol = min(100, player.volume + 10)
+        await player.set_volume(new_vol)
 
-        # Ricostruisci l'embed
+        # ricostruisci embed con requester già presente
         track = player.current
         secs = int(track.length)
         m, s = divmod(secs, 60)
-        thumb_url = get_thumbnail(track)
-
-        title = "🎶 Ora in riproduzione (Loop)" if self.loop_active else "🎶 Ora in riproduzione"
         embed = discord.Embed(
-            title=title,
+            title="🎶 Ora in riproduzione" + (" (Loop)" if self.loop_active else ""),
             description=f"[{track.title}]({track.uri})",
             color=discord.Color.green()
         )
-        embed.set_thumbnail(url=thumb_url or "https://via.placeholder.com/150")
+        embed.set_thumbnail(url=get_thumbnail(track))
         embed.add_field(name="⏱ Durata", value=f"{m}:{s:02d}", inline=True)
-        embed.add_field(name="🔊 Volume", value=f"{new_volume}%", inline=True)
-        embed.set_footer(
-            text=f"Richiesto da {interaction.user}",
-            icon_url=interaction.user.avatar.url if interaction.user.avatar else None
-        )
+        embed.add_field(name="🔊 Volume", value=f"{new_vol}%", inline=True)
+        embed.set_footer(text=f"Richiesto da {track.requester}",
+                         icon_url=interaction.user.avatar.url if interaction.user.avatar else None)
 
         if player.control_message:
             await player.control_message.edit(embed=embed, view=self)
-        return await interaction.response.send_message(f"Volume aumentato a {new_volume}%", ephemeral=True)
+        await interaction.response.send_message(f"Volume aumentato a {new_vol}%", ephemeral=True)
 
 
     @discord.ui.button(label="🔉 Volume -", style=discord.ButtonStyle.grey, custom_id="volume_down")
@@ -692,33 +691,27 @@ class MusicControls(discord.ui.View):
         if not player:
             return await interaction.response.send_message("Il player non è attivo.", ephemeral=True)
 
-        # Abbasso volume
-        new_volume = max(1, player.volume - 10)
-        await player.set_volume(new_volume)
+        new_vol = max(1, player.volume - 10)
+        await player.set_volume(new_vol)
 
-        # Ricostruisci l'embed
+        # ricostruisci embed
         track = player.current
         secs = int(track.length)
         m, s = divmod(secs, 60)
-        thumb_url = get_thumbnail(track)
-
-        title = "🎶 Ora in riproduzione (Loop)" if self.loop_active else "🎶 Ora in riproduzione"
         embed = discord.Embed(
-            title=title,
+            title="🎶 Ora in riproduzione" + (" (Loop)" if self.loop_active else ""),
             description=f"[{track.title}]({track.uri})",
             color=discord.Color.green()
         )
-        embed.set_thumbnail(url=thumb_url or "https://via.placeholder.com/150")
+        embed.set_thumbnail(url=get_thumbnail(track))
         embed.add_field(name="⏱ Durata", value=f"{m}:{s:02d}", inline=True)
-        embed.add_field(name="🔊 Volume", value=f"{new_volume}%", inline=True)
-        embed.set_footer(
-            text=f"Richiesto da {interaction.user}",
-            icon_url=interaction.user.avatar.url if interaction.user.avatar else None
-        )
+        embed.add_field(name="🔊 Volume", value=f"{new_vol}%", inline=True)
+        embed.set_footer(text=f"Richiesto da {track.requester}",
+                         icon_url=interaction.user.avatar.url if interaction.user.avatar else None)
 
         if player.control_message:
             await player.control_message.edit(embed=embed, view=self)
-        return await interaction.response.send_message(f"Volume diminuito a {new_volume}%", ephemeral=True)
+        await interaction.response.send_message(f"Volume diminuito a {new_vol}%", ephemeral=True)
     
     @discord.ui.button(label="🔧 Volume Manuale", style=discord.ButtonStyle.blurple, custom_id="volume_manual")
     async def volume_manual(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -744,7 +737,7 @@ class VolumeModal(discord.ui.Modal, title="Imposta Volume Manuale"):
             vol = int(self.volume.value)
         except ValueError:
             return await interaction.response.send_message("Il volume deve essere un numero.", ephemeral=True)
-        if vol < 1 or vol > 100:
+        if not 1 <= vol <= 100:
             return await interaction.response.send_message("Inserisci un numero tra 1 e 100.", ephemeral=True)
 
         node = wavelink.NodePool.get_node()
@@ -754,23 +747,20 @@ class VolumeModal(discord.ui.Modal, title="Imposta Volume Manuale"):
 
         await player.set_volume(vol)
 
-        # Ricostruisci l'embed
+        # ricostruisci embed con requester già definito
         track = player.current
         secs = int(track.length)
         m, s = divmod(secs, 60)
-
         embed = discord.Embed(
             title="🎶 Ora in riproduzione",
             description=f"[{track.title}]({track.uri})",
             color=discord.Color.green()
         )
-        embed.set_thumbnail(url=track.thumbnail or "https://via.placeholder.com/150")
+        embed.set_thumbnail(url=get_thumbnail(track))
         embed.add_field(name="⏱ Durata", value=f"{m}:{s:02d}", inline=True)
         embed.add_field(name="🔊 Volume", value=f"{vol}%", inline=True)
-        embed.set_footer(
-            text=f"Richiesto da {interaction.user}",
-            icon_url=interaction.user.avatar.url if interaction.user.avatar else None
-        )
+        embed.set_footer(text=f"Richiesto da {track.requester}",
+                         icon_url=interaction.user.avatar.url if interaction.user.avatar else None)
 
         if player.control_message:
             await player.control_message.edit(embed=embed, view=MusicControls(track, interaction.guild, loop_active=player.loop))
