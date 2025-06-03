@@ -78,13 +78,13 @@ Comando	Descrizione
 <h2 id="funzioni-extra">✨ Funzioni Extra</h2>
 
    - `/secretvolume`: aumenta il volume al massimo e potenzia i bassi.
-      -  La password per eseguire secretvolume si trova alla riga 818 del file bot.py.
+      -  La password per eseguire secretvolume si trova alla riga 804 del file bot.py.
 
 <h2 id="personalizzazione">🔧 Personalizzazione</h2>
 
   - Puoi modificare i comandi, i prefissi o gli stili delle embed direttamente in `bot.py`.
 
-  -  Per cambiare la password del comando `secretvolume`, cerca la definizione del comando e modifica la stringa al rigo 818.
+  -  Per cambiare la password del comando `secretvolume`, cerca la definizione del comando e modifica la stringa al rigo 804.
 
 <h2 id="contribuire">🤝 Contribuire</h2>
 
