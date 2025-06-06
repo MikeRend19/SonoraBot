@@ -17,9 +17,6 @@ def save_playlists(data):
         json.dump(data, f, indent=4)
 
 def get_user_playlists(user_id):
-    """
-    Ritorna le playlist create dall'utente (sia pubbliche che private).
-    """
     data = load_playlists()
     return data.get(str(user_id), [])
 
@@ -30,16 +27,12 @@ def add_track_to_playlist(user_id, playlist_name, track, is_public=False, create
     if user_key not in data:
         data[user_key] = []
 
-    # Cerca la playlist esistente in maniera case-insensitive
     for pl in data[user_key]:
         if pl["name"].lower() == playlist_name.lower():
-            # Verifica se il brano è già presente (confrontando l'URL)
             for song in pl.get("tracks", []):
                 if song.get("url") == track.get("url"):
                     return "duplicate"
-            # Aggiungi il brano
             pl["tracks"].append(track)
-            # Aggiorna il flag is_public in base al nuovo input
             pl["is_public"] = is_public
             save_playlists(data)
             return "added"
@@ -50,7 +43,7 @@ def add_track_to_playlist(user_id, playlist_name, track, is_public=False, create
             "owner_id": user_id,
             "is_public": is_public,
             "tracks": [track],
-            "loop": False  # Se non ti serve questo flag, puoi rimuoverlo
+            "loop": False  
         }
         data[user_key].append(new_playlist)
         save_playlists(data)
@@ -59,28 +52,21 @@ def add_track_to_playlist(user_id, playlist_name, track, is_public=False, create
     return "not_found"
 
 def get_available_playlists(user_id):
-    """
-    Ritorna tutte le playlist disponibili per l'utente:
-      - Le playlist pubbliche (create da chiunque)
-      - Le playlist private create dall'utente stesso
-    """
     data = load_playlists()
     available = []
-    # Itera su tutte le chiavi (che sono gli user id che hanno creato playlist)
     for owner_id, playlists in data.items():
         for pl in playlists:
-            # Se la playlist è pubblica oppure appartiene all'utente corrente
             if pl.get("is_public", False) or int(pl.get("owner_id", 0)) == user_id:
                 available.append(pl)
     return available
 
 def get_user_playlists_full(user_id):
-    
+
     data = load_playlists()
     return data.get(str(user_id), [])
 
 async def get_playlist_tracks(query: str):
-   
+
     ydl_opts = {
         'extract_flat': True,
         'skip_download': True,
@@ -98,7 +84,6 @@ async def get_playlist_tracks(query: str):
         entries = info.get('entries', [])
         tracks = []
         for entry in entries:
-            # Costruisco l'URL completo per ogni video
             video_url = f"https://www.youtube.com/watch?v={entry['id']}"
             track = await wavelink.YouTubeTrack.search(video_url, return_first=True)
             if track:
