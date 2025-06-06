@@ -91,8 +91,6 @@ Comando	Descrizione
 
   - Puoi modificare i comandi, i prefissi o gli stili delle embed direttamente in `bot.py`.
 
-  -  Per cambiare la password del comando `secretvolume`, cerca la definizione del comando e modifica la stringa al rigo 804.
-
 <h2 id="contribuire">🤝 Contribuire</h2>
 
 PR e issue sono benvenuti! Segui questi passaggi:
