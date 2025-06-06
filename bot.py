@@ -35,21 +35,20 @@ intents.voice_states = True
 bot = commands.Bot(command_prefix='/', intents=intents)
 tree = bot.tree
 
-YOUTUBE_URL_REGEX = re.compile(r"(https?://)?(www\.)?(youtube\.com|youtu\.be)/")
+VIDEO_ID_REGEX = re.compile(r"(?:v=|youtu\.be/)([A-Za-z0-9_-]{11})")
 
 ##############################################
 # FUNZIONI PER LA GESTIONE DEI BRANI
 ##############################################
 async def get_track(query: str) -> wavelink.YouTubeTrack | None:
-
-    match = YOUTUBE_URL_REGEX.match(query)
+    match = VIDEO_ID_REGEX.search(query)
     if match:
         video_id = match.group(1)
-        results = await wavelink.YouTubeTrack.search(f"https://www.youtube.com/watch?v={video_id}")
-        return results[0] if results else None
+        url = f"https://www.youtube.com/watch?v={video_id}"
+        track = await wavelink.YouTubeTrack.search(url, return_first=True)
+        return track  
 
     return await wavelink.YouTubeTrack.search(query, return_first=True)
-
 
 async def ensure_player_connected(interaction: discord.Interaction) -> wavelink.Player:
 
