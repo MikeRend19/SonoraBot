@@ -797,9 +797,6 @@ class PlaylistButton(discord.ui.Button):
             {"title": self.track.title, "url": self.track.uri}
         )
         return await interaction.response.send_message(f"✅ Aggiunto a **{self.playlist['name']}**!", ephemeral=True)
-import os
-import wavelink
-from discord import app_commands
 
 ##############################################
 # COMANDO SEGRETO PER VOLUME MASSIMO CON BASS BOOST
