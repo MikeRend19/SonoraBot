@@ -2,7 +2,7 @@
 
 > Sonora Bot è un bot Discord per riprodurre musica da YouTube utilizzando un nodo Lavalink.
 
-[![Python](https://img.shields.io/badge/python-3.11-blue)](https://www.python.org/)  
+[![Python](https://img.shields.io/badge/python-3.10-blue)](https://www.python.org/)  
 [![Discord.py](https://img.shields.io/badge/discord.py-%7E2.0-green)](https://github.com/Rapptz/discord.py)
 
 ## 📋 Sommario
@@ -28,7 +28,7 @@
 
 <h2 id="requisiti">🛠️ Requisiti</h2>
 
-1. Python 3.11  
+1. Python 3.10 (Potrebbero funzionare anche versioni piu nuove)
 2. Un bot Discord (token)  
 3. Un nodo Lavalink in esecuzione  
 
