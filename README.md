@@ -55,15 +55,23 @@ python bot.py
 
 <h2 id="configurazione">⚙️ Configurazione</h2>
 
-Crea un file .env nella cartella principale con il seguente formato:
+Al primo avvio bisognera avviare `setup.py` per configurare:
 
 ```
-DISCORD_TOKEN="IlTuoToken"
-LAVALINK_HOST=localhost
-LAVALINK_PORT=2333
-LAVALINK_PASSWORD=IlTuoPassword
-LAVALINK_SECURE=false
+DISCORD_TOKEN
+LAVALINK_HOST
+LAVALINK_PORT
+LAVALINK_PASSWORD
+SECRET_KEY (CHIAVE SEGRETA PER COMANDO /SECRETVOLUME)
 ```
+
+- Se il file .env non esiste, verrà creato automaticamente con tutti i valori richiesti.
+- Se il file .env esiste già e contiene tutte le chiavi, lo script chiederà se desideri aggiornarlo (y/N).
+
+Una volta completata la configurazione, lo script avvierà subito il bot (bot.py).
+
+Alle esecuzioni successive, se non hai bisogno di modificare nulla in .env, basterà lanciare:
+- `bot.py`
 
 ⚠️ Non condividere il file .env pubblicamente!
 
@@ -78,7 +86,6 @@ Comando	Descrizione
 <h2 id="funzioni-extra">✨ Funzioni Extra</h2>
 
    - `/secretvolume`: aumenta il volume al massimo e potenzia i bassi.
-      -  La password per eseguire secretvolume si trova alla riga 804 del file bot.py.
 
 <h2 id="personalizzazione">🔧 Personalizzazione</h2>
 
