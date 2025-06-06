@@ -18,7 +18,6 @@ import yt_dlp as youtube_dl
 import re
 import asyncio
 
-# Carica le variabili d'ambiente dal file .env
 load_dotenv()
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
@@ -29,7 +28,6 @@ LAVALINK_PASSWORD = os.getenv("LAVALINK_PASSWORD")
 if DISCORD_TOKEN is None:
     raise ValueError("Il token del bot non è stato trovato nel file .env")
 
-# Impostazione degli intents per il bot
 intents = discord.Intents.default()
 intents.message_content = True
 intents.voice_states = True
@@ -37,14 +35,13 @@ intents.voice_states = True
 bot = commands.Bot(command_prefix='/', intents=intents)
 tree = bot.tree
 
-# Regex per identificare link YouTube
 YOUTUBE_URL_REGEX = re.compile(r"(https?://)?(www\.)?(youtube\.com|youtu\.be)/")
 
 ##############################################
 # FUNZIONI PER LA GESTIONE DEI BRANI
 ##############################################
 async def get_track(query: str) -> wavelink.YouTubeTrack | None:
- 
+
     match = YOUTUBE_URL_REGEX.match(query)
     if match:
         video_id = match.group(1)
@@ -80,11 +77,14 @@ async def on_ready():
     )
     await bot.change_presence(status=discord.Status.online, activity=activity)
 
+    node = None
     try:
-        wavelink.NodePool.get_node()
+        node = wavelink.NodePool.get_node()
+        if not node.is_available():
+            raise wavelink.ZeroConnectedNodes
     except wavelink.ZeroConnectedNodes:
         try:
-            await wavelink.NodePool.create_node(
+            node = await wavelink.NodePool.create_node(
                 bot=bot,
                 host=LAVALINK_HOST,
                 port=LAVALINK_PORT,
@@ -93,7 +93,10 @@ async def on_ready():
         except Exception as e:
             print(f"❌ Errore nel connettere Lavalink: {e}")
         else:
-            print("✅ Nodo Lavalink connesso!")
+            if node.is_available():
+                print("✅ Nodo Lavalink connesso!")
+            else:
+                print("❌ Nodo creato, ma non disponibile (controlla host/porta/password).")
     else:
         print("ℹ️ Nodo Lavalink già connesso.")
 
@@ -681,7 +684,7 @@ class MusicControls(discord.ui.View):
         if player.control_message:
             await player.control_message.edit(embed=embed, view=self)
         await interaction.response.send_message(f"Volume diminuito a {new_vol}%", ephemeral=True)
-    
+
     @discord.ui.button(label="🔧 Volume Manuale", style=discord.ButtonStyle.blurple, custom_id="volume_manual")
     async def volume_manual(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(VolumeModal())
@@ -794,6 +797,9 @@ class PlaylistButton(discord.ui.Button):
             {"title": self.track.title, "url": self.track.uri}
         )
         return await interaction.response.send_message(f"✅ Aggiunto a **{self.playlist['name']}**!", ephemeral=True)
+import os
+import wavelink
+from discord import app_commands
 
 ##############################################
 # COMANDO SEGRETO PER VOLUME MASSIMO CON BASS BOOST
@@ -801,9 +807,18 @@ class PlaylistButton(discord.ui.Button):
 @tree.command(name="secretvolume", description="Funzione segreta per impostare il volume a 500 con bass boost (richiede una chiave segreta)")
 @app_commands.describe(secret_key="Chiave segreta per abilitare il volume massimo")
 async def secret_volume(interaction: discord.Interaction, secret_key: str):
-    CHIAVE_SEGRETA = "duro"
+    CHIAVE_SEGRETA = os.getenv("SECRET_KEY")
+    if not CHIAVE_SEGRETA:
+        return await interaction.response.send_message(
+            "❌ Nessuna `SECRET_KEY` trovata in ambiente. Contatta l'admin.",
+            ephemeral=True
+        )
+
     if secret_key != CHIAVE_SEGRETA:
-        return await interaction.response.send_message("❌ Chiave segreta errata. Accesso negato.", ephemeral=True)
+        return await interaction.response.send_message(
+            "❌ Chiave segreta errata. Accesso negato.", 
+            ephemeral=True
+        )
 
     node = wavelink.NodePool.get_node()
     player = node.get_player(interaction.guild)
