@@ -77,28 +77,25 @@ async def on_ready():
     )
     await bot.change_presence(status=discord.Status.online, activity=activity)
 
-    node = None
     try:
-        node = wavelink.NodePool.get_node()
-        if not node.is_available():
-            raise wavelink.ZeroConnectedNodes
+        wavelink.NodePool.get_node()
     except wavelink.ZeroConnectedNodes:
         try:
-            node = await wavelink.NodePool.create_node(
+            await wavelink.NodePool.create_node(
                 bot=bot,
                 host=LAVALINK_HOST,
                 port=LAVALINK_PORT,
                 password=LAVALINK_PASSWORD
             )
+            print("⌛ Nodo Lavalink in creazione, attendo conferma di connessione…")
         except Exception as e:
-            print(f"❌ Errore nel connettere Lavalink: {e}")
-        else:
-            if node.is_available():
-                print("✅ Nodo Lavalink connesso!")
-            else:
-                print("❌ Nodo creato, ma non disponibile (controlla host/porta/password).")
+            print(f"❌ Errore nel creare il nodo Lavalink: {e}")
     else:
-        print("ℹ️ Nodo Lavalink già connesso.")
+        print("ℹ️ Nodo Lavalink già presente nel pool, presumo sia connesso.")
+
+@bot.event
+async def on_wavelink_node_ready(node):
+    print(f"✅ Nodo Lavalink connesso! ({node.host}:{node.port})")
 
 ##############################################
 # COMANDO /playplaylist - Riproduzione Playlist
